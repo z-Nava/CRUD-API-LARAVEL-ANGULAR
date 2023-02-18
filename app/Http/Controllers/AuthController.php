@@ -1,16 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\LoginRequest;
+
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    
     public function register(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
@@ -29,6 +34,7 @@ class AuthController extends Controller
             'rol_id' => $request->get('rol_id')
         ]);
 
+        $this->authorize('create-delete-users');
         $user->save();
 
         return response()->json([
@@ -37,32 +43,41 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:100',
-            'password' => 'required|string|min:6',
-        ]);
+       if(!Auth::attempt($request->only('email','password')))
+       {
+              return response()->json([
+                'message' => 'Credenciales incorrectas'
+              ],401);
+       }
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+       $user = User::where('email', $request->email)->first();
+       if(!$user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Credenciales incorrectas'
+            ],401);
+       }
 
-        $credentials = $request->only('email', 'password');
-
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        return $this->respondWithToken($token);
+       return response()->json([
+            'message' => 'Inicio de sesión exitoso',
+            'user' => $user,
+            'token' => $user->createToken('token')->plainTextToken
+        ],200);
+    
     }
 
     public function logout(Request $request)
     {
-         //$request->user->token()->revoke();
-            return response()->json([
-                'message' => 'Cierra sesión exitoso'
-            ],200);
+        return response()->json([
+            "status"=>200,
+            "msg"=>"la sesion se ha cerrado correctamente",
+            "error"=>null,
+            "data"=>[
+                "user"=>$request->user,
+               "del"=>$request->user()->tokens()->delete()
+            ]
+         ],200);
     }
 
     public function respondWithToken($token)
