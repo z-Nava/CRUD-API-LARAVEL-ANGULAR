@@ -34,7 +34,7 @@ class AuthController extends Controller
             'rol_id' => $request->get('rol_id')
         ]);
 
-        $this->authorize('create-delete-users');
+       // $this->authorize('create-delete-users');
         $user->save();
 
         return response()->json([
@@ -42,6 +42,7 @@ class AuthController extends Controller
             'user' => $user
         ], 201);
     }
+    
 
     public function login(LoginRequest $request)
     {
