@@ -75,7 +75,7 @@ class AuthController extends Controller
             "error"=>null,
             "data"=>[
                 "user"=>$request->user,
-               "del"=>$request->user()->tokens()->delete()
+                "del"=>$request->user()->tokens()->delete()
             ]
          ],200);
     }

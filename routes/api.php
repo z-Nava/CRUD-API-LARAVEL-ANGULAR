@@ -59,6 +59,4 @@ Route::prefix('/v1')->group(function()
     Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show']);
     Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);//->middleware('auth:sanctum');
     Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);//->middleware('auth:sanctum');
-
-
 });
