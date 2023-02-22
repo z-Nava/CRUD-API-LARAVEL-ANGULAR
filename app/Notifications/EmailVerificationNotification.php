@@ -6,6 +6,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\URL;
+
+
 
 class EmailVerificationNotification extends Notification
 {
@@ -32,17 +36,21 @@ class EmailVerificationNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
+    public function toMail($notifiable)
+{
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(30),
+        ['id' => $notifiable->getKey(), 'hash' => sha1($notifiable->email)]
+    );
 
-        $verificationUrl = url('/api/verify-email/' . $notifiable->id . '/' . $notifiable->email_verification_token);
-        return (new MailMessage)
+    return (new MailMessage)
         ->subject('Confirma tu correo electrónico')
         ->line('Gracias por registrarte en nuestra aplicación. Por favor, confirma tu correo electrónico haciendo clic en el botón de abajo:')
         ->action('Confirmar correo electrónico', $verificationUrl)
         ->line('Si no has creado una cuenta en nuestra aplicación, simplemente ignora este correo electrónico.')
         ->salutation('¡Gracias!');
-    }
+}
 
     /**
      * Get the array representation of the notification.

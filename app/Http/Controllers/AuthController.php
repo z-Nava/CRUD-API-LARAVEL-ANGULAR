@@ -9,8 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmailVerification;
 use Illuminate\Auth\Events\Registered;
 use App\Notifications\EmailVerificationNotification;
+
+use Illuminate\Auth\Events\Verified;
 
 
 class AuthController extends Controller
@@ -41,8 +46,17 @@ class AuthController extends Controller
        // $this->authorize('create-delete-users');
         $user->save();
 
-        event(new Registered($user));
-        $user->notify(new EmailVerificationNotification);
+        //event(new Registered($user));
+        //$user->notify(new EmailVerificationNotification);
+
+       // $verificationUrl = URL::temporarySignedRoute(
+            //'verification.verify', now()->addMinutes(30), ['id' => $user->id]
+       //);
+       //Mail::to($user->email)->send(new EmailVerificationNotification($verificationUrl));
+        $url = URL::temporarySignedRoute(
+            'verification.verify', now()->addMinutes(30), ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+        $user->notify(new EmailVerificationNotification($url));
 
         return response()->json([
             'message' => 'Usuario registrado exitosamente, se ha enviado un correo de verificación',
@@ -95,5 +109,24 @@ class AuthController extends Controller
         'token_type' => 'bearer',
         //'expires_in' => auth()->factory()->getTTL() * 60
     ]);
+    }
+
+    public function verify(Request $request)
+    {
+     $user = User::findOrFail($request->id);
+
+     if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+         return response(['message' => 'Invalid verification link']);
+     }
+
+     if ($user->hasVerifiedEmail()) {
+         return response(['message' => 'Email already verified']);
+     }
+
+     $user->markEmailAsVerified();
+     $user->status = 'verified';
+        $user->save();
+     event(new Verified($user));
+     return response(['message' => 'Email verified']);
     }
 }

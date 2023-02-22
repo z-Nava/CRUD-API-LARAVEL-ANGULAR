@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\DetalleDeOrdenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
 use function PHPSTORM_META\map;
 
@@ -33,11 +34,11 @@ Route::prefix('/v1')->group(function()
     Route::get("/logout",[AuthController::class,'logout']);
     
     //CLIENTES
-    Route::get("/clientes",[ClienteController::class,'index']);
-    Route::post("/clientes",[ClienteController::class,'store'])->middleware('auth:sanctum');
+    Route::get("/clientes",[ClienteController::class,'index'])->middleware('verify.role.email:1,2');
+    Route::post("/clientes",[ClienteController::class,'store'])->middleware('auth', 'verified', 'verify.role.email:1,2');
     Route::get("/clientes/{cliente}",[ClienteController::class,'show']);
-    Route::put("/clientes/{cliente}",[ClienteController::class,'update'])->middleware('auth:sanctum');
-    Route::delete("/clientes/{cliente}",[ClienteController::class,'destroy'])->middleware('auth:sanctum');
+    Route::put("/clientes/{cliente}",[ClienteController::class,'update']);
+    Route::delete("/clientes/{cliente}",[ClienteController::class,'destroy']);
 
     //PRODUCTOS
     Route::get("/productos",[ProductoController::class,'index']);
@@ -59,4 +60,8 @@ Route::prefix('/v1')->group(function()
     Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show']);
     Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);//->middleware('auth:sanctum');
     Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);//->middleware('auth:sanctum');
+
+
+    //VERIFICAR URL FIRMADA
+    Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
 });
