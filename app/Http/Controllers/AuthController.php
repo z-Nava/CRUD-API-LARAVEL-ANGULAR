@@ -9,13 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Registered;
+use App\Notifications\EmailVerificationNotification;
+
 
 class AuthController extends Controller
 {
     
     public function register(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
@@ -27,6 +29,8 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
+        
+
         $user = new User([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
@@ -37,8 +41,11 @@ class AuthController extends Controller
        // $this->authorize('create-delete-users');
         $user->save();
 
+        event(new Registered($user));
+        $user->notify(new EmailVerificationNotification);
+
         return response()->json([
-            'message' => 'Usuario registrado exitosamente',
+            'message' => 'Usuario registrado exitosamente, se ha enviado un correo de verificación',
             'user' => $user
         ], 201);
     }
