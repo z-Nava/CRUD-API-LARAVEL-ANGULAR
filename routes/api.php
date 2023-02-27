@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+<<<<<<< Updated upstream
 
 
 Route::prefix('/v1')->group(function()
@@ -39,6 +40,16 @@ Route::prefix('/v1')->group(function()
     Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
     //CLIENTES
     Route::get("/clientes",[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:2');
+=======
+Route::post("/registro",[AuthController::class,'register']);
+Route::post("/login",[AuthController::class,'login']);
+Route::get("/logout",[AuthController::class,'logout']);
+
+Route::prefix('/v1')->middleware('auth:sanctum')->group(function()
+{
+    //CLIENTES
+    Route::get("/clientes",[ClienteController::class,'index']);
+>>>>>>> Stashed changes
     Route::post("/clientes",[ClienteController::class,'store']);
     Route::get("/clientes/{cliente}",[ClienteController::class,'show']);
     Route::put("/clientes/{cliente}",[ClienteController::class,'update']);
@@ -64,6 +75,7 @@ Route::prefix('/v1')->group(function()
     Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show']);
     Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);
     Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);
+<<<<<<< Updated upstream
 
     //VERIFICAR URL FIRMADA
     Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
@@ -71,4 +83,6 @@ Route::prefix('/v1')->group(function()
      //TEST
      Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
 
+=======
+>>>>>>> Stashed changes
 });
