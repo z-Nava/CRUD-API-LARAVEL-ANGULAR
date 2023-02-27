@@ -26,42 +26,49 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+
 Route::prefix('/v1')->group(function()
 {
+
     //AUTENTICACION
     Route::post("/registro",[AuthController::class,'register'])->middleware('auth:sanctum');
     Route::post("/login",[AuthController::class,'login']);
-    Route::get("/logout",[AuthController::class,'logout']);
-    
+    Route::get("/logout",[AuthController::class,'logout'])->middleware('auth:sanctum');
+    //TEST
+    Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
     //CLIENTES
-    Route::get("/clientes",[ClienteController::class,'index'])->middleware('verify.role.email:1,2');
-    Route::post("/clientes",[ClienteController::class,'store'])->middleware('auth', 'verified', 'verify.role.email:1,2');
+    Route::get("/clientes",[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:2');
+    Route::post("/clientes",[ClienteController::class,'store']);
     Route::get("/clientes/{cliente}",[ClienteController::class,'show']);
     Route::put("/clientes/{cliente}",[ClienteController::class,'update']);
     Route::delete("/clientes/{cliente}",[ClienteController::class,'destroy']);
 
     //PRODUCTOS
     Route::get("/productos",[ProductoController::class,'index']);
-    Route::post("/productos",[ProductoController::class,'store']);//->middleware('auth:sanctum');
+    Route::post("/productos",[ProductoController::class,'store']);
     Route::get("/productos/{producto}",[ProductoController::class,'show']);
-    Route::put("/productos/{producto}",[ProductoController::class,'update']);//->middleware('auth:sanctum');
-    Route::delete("/productos/{producto}",[ProductoController::class,'destroy']);//->middleware('auth:sanctum');
+    Route::put("/productos/{producto}",[ProductoController::class,'update']);
+    Route::delete("/productos/{producto}",[ProductoController::class,'destroy']);
 
     //ORDENES
     Route::get("/ordenes",[OrdenController::class,'index']);
-    Route::post("/ordenes",[OrdenController::class,'store']);//->middleware('auth:sanctum');
+    Route::post("/ordenes",[OrdenController::class,'store']);
     Route::get("/ordenes/{orden}",[OrdenController::class,'show']);
-    Route::put("/ordenes/{orden}",[OrdenController::class,'update']);//->middleware('auth:sanctum');
-    Route::delete("/ordenes/{orden}",[OrdenController::class,'destroy']);//->middleware('auth:sanctum');
+    Route::put("/ordenes/{orden}",[OrdenController::class,'update']);
+    Route::delete("/ordenes/{orden}",[OrdenController::class,'destroy']);
 
     //DETALLES DE ORDEN
-    Route::get("/detalles",[DetalleDeOrdenController::class,'index']);//->middleware('auth:sanctum');
+    Route::get("/detalles",[DetalleDeOrdenController::class,'index']);
     Route::post("/detalles",[DetalleDeOrdenController::class,'store']);
     Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show']);
-    Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);//->middleware('auth:sanctum');
-    Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);//->middleware('auth:sanctum');
-
+    Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);
+    Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);
 
     //VERIFICAR URL FIRMADA
     Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
+
+     //TEST
+     Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
+
 });

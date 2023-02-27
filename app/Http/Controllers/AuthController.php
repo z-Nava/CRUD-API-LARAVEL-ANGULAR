@@ -15,6 +15,7 @@ use App\Mail\EmailVerification;
 use Illuminate\Auth\Events\Registered;
 use App\Notifications\EmailVerificationNotification;
 
+
 use Illuminate\Auth\Events\Verified;
 
 
@@ -67,39 +68,32 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-       if(!Auth::attempt($request->only('email','password')))
-       {
-              return response()->json([
-                'message' => 'Credenciales incorrectas'
-              ],401);
-       }
+    
+        $credentials = $request->only('email', 'password');
 
-       $user = User::where('email', $request->email)->first();
-       if(!$user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Credenciales incorrectas'
-            ],401);
-       }
+        if (Auth::attempt($credentials)) {
+            $user = $request->user();
 
-       return response()->json([
-            'message' => 'Inicio de sesión exitoso',
-            'user' => $user,
-            'token' => $user->createToken('token')->plainTextToken
-        ],200);
+            if (!$user->hasVerifiedEmail()) {
+                return response(['error' => 'Email not verified'], 403);
+            }
+
+            return response(['user' => $user, 'token' => $user->createToken('token')->plainTextToken]);
+        }
+
+        return response(['error' => 'Unauthorized'], 401);
     
     }
 
     public function logout(Request $request)
     {
+        $user = $request->user();
+
+        $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+
         return response()->json([
-            "status"=>200,
-            "msg"=>"la sesion se ha cerrado correctamente",
-            "error"=>null,
-            "data"=>[
-                "user"=>$request->user,
-                "del"=>$request->user()->tokens()->delete()
-            ]
-         ],200);
+            'message' => 'Successfully logged out'
+        ], 200);
     }
 
     public function respondWithToken($token)
@@ -128,5 +122,12 @@ class AuthController extends Controller
         $user->save();
      event(new Verified($user));
      return response(['message' => 'Email verified']);
+    }
+
+    public function test(Request $request)
+    {
+        return response()->json([
+            "status"=>200,
+            "msg"=>"Test exitoso"]);
     }
 }
