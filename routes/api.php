@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
+
 Route::prefix('/v1')->group(function()
 {
 
@@ -38,11 +39,11 @@ Route::prefix('/v1')->group(function()
     //TEST
     Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
     //CLIENTES
-    Route::get("/clientes",[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1,2,3');
-    Route::post("/clientes",[ClienteController::class,'store'])->middleware('auth:sanctum','verify.role.email:1,2');
-    Route::get("/clientes/{cliente}",[ClienteController::class,'show'])->middleware('auth:sanctum','verify.role.email:1,2,3');
-    Route::put("/clientes/{cliente}",[ClienteController::class,'update'])->middleware('auth:sanctum','verify.role.email:1,2');
-    Route::delete("/clientes/{cliente}",[ClienteController::class,'destroy'])->middleware('auth:sanctum','verify.role.email:1');
+    Route::get("/clientes",[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:2');
+    Route::post("/clientes",[ClienteController::class,'store']);
+    Route::get("/clientes/{cliente}",[ClienteController::class,'show']);
+    Route::put("/clientes/{cliente}",[ClienteController::class,'update']);
+    Route::delete("/clientes/{cliente}",[ClienteController::class,'destroy']);
 
     //PRODUCTOS
     Route::get("/productos",[ProductoController::class,'index'])->middleware('auth:sanctum','verify.role.email:1,2,3');
@@ -59,11 +60,11 @@ Route::prefix('/v1')->group(function()
     Route::delete("/ordenes/{orden}",[OrdenController::class,'destroy'])->middleware('auth:sanctum','verify.role.email:1');
 
     //DETALLES DE ORDEN
-    Route::get("/detalles",[DetalleDeOrdenController::class,'index'])->middleware('auth:sanctum','verify.role.email:1,2,3');
-    Route::post("/detalles",[DetalleDeOrdenController::class,'store'])->middleware('auth:sanctum','verify.role.email:1,2');
-    Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show'])->middleware('auth:sanctum','verify.role.email:1,2,3');
-    Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update'])->middleware('auth:sanctum','verify.role.email:1,2');
-    Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy'])->middleware('auth:sanctum','verify.role.email:1');
+    Route::get("/detalles",[DetalleDeOrdenController::class,'index']);
+    Route::post("/detalles",[DetalleDeOrdenController::class,'store']);
+    Route::get("/detalles/{detalle}",[DetalleDeOrdenController::class,'show']);
+    Route::put("/detalles/{detalle}",[DetalleDeOrdenController::class,'update']);
+    Route::delete("/detalles/{detalle}",[DetalleDeOrdenController::class,'destroy']);
 
     //VERIFICAR URL FIRMADA
     Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
@@ -71,4 +72,6 @@ Route::prefix('/v1')->group(function()
      //TEST
      Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
 
+
 });
+?>
