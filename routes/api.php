@@ -67,7 +67,7 @@ Route::prefix('/v1')->group(function()
 
     //VERIFICAR URL FIRMADA
     Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
-
+    ///////////
      //TEST
      Route::get('/test',[ClienteController::class,'index'])->middleware('auth:sanctum','verify.role.email:1');
 
