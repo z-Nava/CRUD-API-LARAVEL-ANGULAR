@@ -18,7 +18,7 @@ class ClienteController extends Controller
         return response()->json(['data' => $clientes]);
 
     }
-
+    //Cliente Controller
     /**
      * Store a newly created resource in storage.
      */
