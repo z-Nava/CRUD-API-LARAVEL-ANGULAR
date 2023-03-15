@@ -28,4 +28,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('detalles_de_ordenes');
     }
+
+    //Detalle de ordenes
 };
